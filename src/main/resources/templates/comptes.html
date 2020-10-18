@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+	layout:decorator="template1">  <!-- je suis entrain de demander à thymeleaf que cette page tu vas la décorer avec la page template1.html  -->
+<head>
+<style type="text/css">
+.panel-default {
+	margin-top: 40px;
+}
+</style>
+<meta charset="utf-8" />  <!--  Puisque thymeleaf utilise XHTML , il faudrai   fermer les balises ( et changer "ISO-8859-1" par "utf-8"/  -->
+<title>Votre banque</title>
+</head>
+<body>
+
+	<div layout:fragment="content">
+
+		<div class="col-md-6 ">  <!--  càd , la moitier -->
+			<div class="panel panel-default">
+				<div class="panel-heading">Consultation d'un compte</div>
+				<div class="panel-body">
+					<form th:action="@{/consultercompte}" method="get">
+						<div>
+							<label>Code Compte:</label> 
+							<input type="text" name="codeCompte" th:value = "${codeCompte}" />  
+							<button type="submit" class="btn btn-default">OK</button>
+						</div>
+					</form>
+					<div class="text-danger" th:if = "${exceptions}" th:text= "${exceptions.message}"></div>  <!-- si dans le model il ya un exception j'affiche sa valeur -->
+				</div>
+
+			</div>
+
+			<div class="panel panel-default" th:if="${consulterCpte}">
+				<div class="panel-heading">Information sur le compte</div>
+				<div class="panel-body">
+				    <div>
+						<label>Client:</label> <label th:text="${consulterCpte.client.nom}"></label>
+					</div>
+					<div>
+						<label>Code:</label> <label th:text="${consulterCpte.codeCompte}"></label>
+					</div>
+					<div>
+						<label>Solde:</label> <label th:text="${consulterCpte.solde}"></label>
+					</div>
+					<div>
+						<label>Date Création:</label> <label
+							th:text="${consulterCpte.dateCreation}"></label>
+					</div>
+					<div>
+						<label>Type:</label> <label
+							th:text="${consulterCpte.class.SimpleName}"></label>
+					</div>
+					<div th:if="${consulterCpte.class.SimpleName=='CompteCourant'}">
+						<label>Decouvert:</label> <label
+							th:text="${consulterCpte.decouvert}"></label>
+					</div>
+					<div th:if="${consulterCpte.class.SimpleName=='CompteEpargne'}">
+						<label>Taux:</label> <label th:text="${consulterCpte.taux}"></label>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-6">
+		<div sec:authorize="hasRole('ROLE_ADMIN')">
+			<div class="panel panel-default" th:if="${consulterCpte}">
+				<div class="panel-heading">Opération sur le compte</div>
+				<div class="panel-body">
+				<form th:action="@{/saveOperation}" method="post">
+					<div>
+						<label>Compte </label>
+						<input type="hidden" name="codeCompte" th:value="${codeCompte}"/>
+						<label th:text = "${codeCompte}"></label>   <!-- pour afficher le code du compte -->
+					</div>
+					<div>
+						<input type="radio" name="typeOperation" value="VERS" checked="checked" onchange="document.getElementById('forVirement').style.display = 'none'"/>
+						<label>Versement</label>
+						<input type="radio" name="typeOperation" value="RETR" onchange="document.getElementById('forVirement').style.display = 'none'"/>
+						<label>Retrait</label>
+						<input type="radio" name="typeOperation" value="VIR"  onchange="document.getElementById('forVirement').style.display = 'block'"/>
+						<label>Virement</label>
+					</div>
+					<div id="forVirement" style="display: none">
+					 <label>Vers: </label>
+					 <input type="text" name="codeCompte2"/>
+					</div>
+					<div>
+					 <label>Montant: </label>
+					 <input type="text" name="montant"/>
+					</div>
+<!-- 					 <div class="text-danger" th:if = "${error}" th:text= "${error.message}"></div>
+ -->					 <div class="text-danger" th:text="${#httpServletRequest.getParameter('error')}">
+ 							</div>
+					<button class="btn btn-light" type="submit" >Save</button>
+				  </form>
+				</div>
+			</div>
+			</div>
+			<div class="panel panel-default" th:if="${consulterCpte}">
+				<div class="panel-heading">Liste des opérations</div>
+				<div class="panel-body">
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<th>Num</th>
+								<th>Date Operation</th>
+								<th>Type</th>
+								<th>Montant</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr th:each="l:${listOperations}">  <!-- pour chaque opération l : la liste des opérations -->
+								<td th:text="${l.numero}"></td>
+								<td th:text="${l.dateOperation}"></td>
+								<td th:text="${l.class.simpleName}"></td>
+								<td th:text="${l.montant}"></td>
+							</tr>
+						</tbody>
+					</table>
+					<div class="container">
+					  <ul class="nav nav-pills">
+					    <li class="nav-item" th:each="p,status:${pages}">  <!-- status: pour parcourir le tableau avec des index -->
+					    <a th:href="@{/consultercompte(codeCompte=${codeCompte},page=${status.index})}" th:text="${status.index}"></a>
+					    </li>
+					  </ul>
+					 
+					</div>
+
+				</div>
+			</div>
+		</div>
+
+
+	</div>
+
+</body>
+</html>

@@ -1,0 +1,9 @@
+ pour accéder à l'application il faut d'abord passer par une opération d'authentification 
+ pour travailler avec Spring security, la premier chose il faut ajouter Spring security dans le fichier pom.xml, la deuxiéme chose il va falloir configure la 
+ sécurité
+ pour accéder à l'application, il faut d'abord passer par un formulaire 
+ Forbidden : le role vous n'etes pas autoriser
+ 
+ on a une table users dans la base de donnée qui permet de stocker les utilisateurs
+ on a une tables roles dans la base de donnée qui permet de stocker les roles (in a deux roles ADMIN et USER)
+ on une tables users-roles dans la base de donnée qui permet d'affecter des roles aux utilisateurs
